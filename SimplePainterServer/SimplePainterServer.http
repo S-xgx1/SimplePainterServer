@@ -1,0 +1,6 @@
+@SimplePainterServer_HostAddress = http://localhost:5168
+
+GET {{SimplePainterServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

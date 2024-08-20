@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="d8f1f943-84bf-4efb-b52e-1228cd29b7e7" name="PS">
+        <fileTransfer rootFolder="/home/punctual-solutions/server/SimplePainterServer" accessType="SFTP" host="119.3.163.38" port="22" sshConfigId="02142f36-298f-4333-9202-cd9ffcd86cc2" sshConfig="punctual-solutions@119.3.163.38:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
