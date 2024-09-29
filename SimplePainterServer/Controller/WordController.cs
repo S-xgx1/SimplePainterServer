@@ -14,7 +14,7 @@ public class WordController(MainDateBase context, IMapper mapper) : ControllerBa
     {
         var infos = await context.WordInfos.Include(x => x.Images).Where(x => x.Images.Count <= Config.WordMaxDrawCount)
             .ToArrayAsync();
-        return mapper.Map<WordInfo[], WordInfoDto[]>(infos);
+        return mapper.Map<WordInfo[], WordInfoDto[]>(infos).OrderBy(x => new Random().Next()).ToArray();
     }
 
     [HttpGet("DetailList")]
@@ -26,8 +26,18 @@ public class WordController(MainDateBase context, IMapper mapper) : ControllerBa
             wordInfoDetail.DrawCount = infos.First(x => x.ID == wordInfoDetail.ID).Images.Count;
         return wordInfoDetails;
     }
+    [HttpDelete("ClearData")]
+    public async Task<IActionResult> ClearData(int wordId)
+    {
+        var data = await context.WordInfos.Include(x => x.Images).FirstOrDefaultAsync(x => x.ID == wordId);
+        if (data is null)
+            return NotFound();
+        context.ImageInfos.RemoveRange(data.Images);
+        await context.SaveChangesAsync();
+        return Ok();
+    }
 
-    [HttpGet("AddAllWord")] 
+    [HttpGet("AddAllWord")]
     public async Task<IActionResult> AddAllWord()
     {
         var wordInfos = new List<WordInfo>

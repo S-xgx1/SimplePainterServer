@@ -14,18 +14,18 @@ public class MainDateBase(DbContextOptions<MainDateBase> options) : DbContext(op
         modelBuilder.Entity<UserInfo>()
             .HasMany(e => e.Guesses)
             .WithOne(e => e.User)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<UserInfo>()
             .HasMany(e => e.Images)
             .WithOne(e => e.User)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<Guess>()
             .HasOne(e => e.Image)
             .WithMany(e => e.Guesses)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<ImageInfo>()
             .HasOne(e => e.Word)
             .WithMany(e => e.Images)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

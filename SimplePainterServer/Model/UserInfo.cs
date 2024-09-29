@@ -23,6 +23,14 @@ public class UserInfo
         EducationLevel = educationLevel;
     }
 
+    public void Update(UserInfo userInfo)
+    {
+        Language = userInfo.Language;
+        Sex = userInfo.Sex;
+        Age = userInfo.Age;
+        Career = userInfo.Career;
+        EducationLevel = userInfo.EducationLevel;
+    }
     public int ID { get; set; }
     public string Name { get; set; }
     public string Language { get; set; }

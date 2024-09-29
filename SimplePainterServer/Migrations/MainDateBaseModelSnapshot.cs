@@ -134,13 +134,13 @@ namespace SimplePainterServer.Migrations
                     b.HasOne("SimplePainterServer.Model.ImageInfo", "Image")
                         .WithMany("Guesses")
                         .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SimplePainterServer.Model.UserInfo", "User")
                         .WithMany("Guesses")
                         .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Image");
@@ -153,13 +153,13 @@ namespace SimplePainterServer.Migrations
                     b.HasOne("SimplePainterServer.Model.UserInfo", "User")
                         .WithMany("Images")
                         .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SimplePainterServer.Model.WordInfo", "Word")
                         .WithMany("Images")
                         .HasForeignKey("WordId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");

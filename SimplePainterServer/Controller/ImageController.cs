@@ -29,6 +29,7 @@ public class ImageController(MainDateBase context, IMapper mapper, IWebHostEnvir
                   1f * count / imageInfo.Guesses.Count > Config.ImageMaxGuessCorrectlyProportion
             select imageInfo).ToList();
         infos.RemoveAll(info => infosToRemove.Contains(info));
+        infos = infos.OrderBy(x => new Random().Next()).ToList();
         return mapper.Map<List<ImageInfo>, List<ImageInfoDto>>(infos);
     }
 

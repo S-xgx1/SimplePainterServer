@@ -9,12 +9,18 @@ namespace SimplePainterServer.Controller;
 [Route("[controller]"), ApiController]
 public class UserInfoController(MainDateBase context, IMapper mapper) : ControllerBase
 {
-    [HttpPost]
-    public async Task<ActionResult<UserInfoDto>> Post(UserInfoDto userInfo)
+    [HttpPut]
+    public async Task<ActionResult<UserInfoDto>> Put(UserInfoDto userInfo)
     {
-        var entityEntry = await context.AddAsync(mapper.Map<UserInfoDto, UserInfo>(userInfo));
+        var entity = mapper.Map<UserInfoDto, UserInfo>(userInfo);
+        var exInfo = await context.UserInfos.FirstOrDefaultAsync(x => x.Name == entity.Name);
+        if (exInfo is not null)
+            exInfo.Update(entity);
+        else
+            exInfo = (await context.AddAsync(entity)).Entity;
+
         await context.SaveChangesAsync();
-        return mapper.Map<UserInfo, UserInfoDto>(entityEntry.Entity);
+        return mapper.Map<UserInfo, UserInfoDto>(exInfo);
     }
 
     [HttpGet]
@@ -44,16 +50,28 @@ public class UserInfoController(MainDateBase context, IMapper mapper) : Controll
     public async Task<ActionResult<List<UserInfoDetail>>> ListForDetail()
     {
         var userInfos = await context.UserInfos.Include(x => x.Images).ThenInclude(x => x.Guesses)
-            .Include(userInfo => userInfo.Images).ThenInclude(imageInfo => imageInfo.Word).ToListAsync();
+            .Include(userInfo => userInfo.Images).ThenInclude(imageInfo => imageInfo.Word)
+            .Include(userInfo => userInfo.Guesses).ThenInclude(guess => guess.Image).ToListAsync();
         var listForDetail = mapper.Map<List<UserInfo>, List<UserInfoDetail>>(userInfos);
         foreach (var userInfo in listForDetail)
         {
             var first = userInfos.First(x => x.ID == userInfo.ID);
             userInfo.DrawCount         = first.Images.Count;
-            userInfo.GuessCount        = first.Images.Sum(x => x.Guesses.Count);
-            userInfo.GuessSuccessCount = first.Images.Sum(x => x.Guesses.Count(y => y.Word == x.Word.Name));
+            userInfo.GuessCount        = first.Guesses.Count;
+            userInfo.GuessSuccessCount = first.Guesses.Sum(x => x.Image.Word.Name == x.Word ? 1 : 0);
         }
 
         return listForDetail;
+    }
+
+    [HttpDelete]
+    public async Task<ActionResult> Delete(int id)
+    {
+        var info = await context.UserInfos.FirstOrDefaultAsync(x => x.ID == id);
+        if (info is null)
+            return NotFound();
+        context.UserInfos.Remove(info);
+        await context.SaveChangesAsync();
+        return Ok();
     }
 }
