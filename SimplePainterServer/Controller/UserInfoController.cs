@@ -6,7 +6,7 @@ using SimplePainterServer.Model;
 
 namespace SimplePainterServer.Controller;
 
-[Route("[controller]"), ApiController]
+[Route("[controller]"), ApiController,]
 public class UserInfoController(MainDateBase context, IMapper mapper) : ControllerBase
 {
     [HttpPut]
@@ -21,6 +21,15 @@ public class UserInfoController(MainDateBase context, IMapper mapper) : Controll
 
         await context.SaveChangesAsync();
         return mapper.Map<UserInfo, UserInfoDto>(exInfo);
+    }
+
+    [HttpGet("OrUserName")]
+    public async Task<ActionResult<UserInfoDto>> GetOrUserName(string userName)
+    {
+        var info = await context.UserInfos.FirstOrDefaultAsync(x => x.Name == userName);
+        if (info is null)
+            return NotFound();
+        return mapper.Map<UserInfo, UserInfoDto>(info);
     }
 
     [HttpGet]
@@ -38,11 +47,14 @@ public class UserInfoController(MainDateBase context, IMapper mapper) : Controll
         var wordCount = await context.WordInfos.CountAsync();
         var wordInfos = await context.WordInfos.Include(x => x.Images).ThenInclude(x => x.Guesses).ToArrayAsync();
         var wordCorrectCount = wordInfos.Count(wordInfo => (from wordInfoImage in wordInfo.Images
-            let correctCount = wordInfoImage.Guesses.Count(x => x.Word == wordInfo.Name)
-            let count = wordInfoImage.Guesses.Count
-            where count                     >= Config.ImageMaxGuessCount &&
-                  1f * correctCount / count > Config.ImageMaxGuessCorrectlyProportion
-            select correctCount).Any());
+                                                            let correctCount =
+                                                                wordInfoImage.Guesses.Count(
+                                                                    x => x.Word == wordInfo.Name)
+                                                            let count = wordInfoImage.Guesses.Count
+                                                            where count >= Config.ImageMaxGuessCount &&
+                                                                  1f * correctCount / count >
+                                                                  Config.ImageMaxGuessCorrectlyProportion
+                                                            select correctCount).Any());
         return 1f * wordCorrectCount / wordCount;
     }
 
@@ -50,8 +62,9 @@ public class UserInfoController(MainDateBase context, IMapper mapper) : Controll
     public async Task<ActionResult<List<UserInfoDetail>>> ListForDetail()
     {
         var userInfos = await context.UserInfos.Include(x => x.Images).ThenInclude(x => x.Guesses)
-            .Include(userInfo => userInfo.Images).ThenInclude(imageInfo => imageInfo.Word)
-            .Include(userInfo => userInfo.Guesses).ThenInclude(guess => guess.Image).ToListAsync();
+                                     .Include(userInfo => userInfo.Images).ThenInclude(imageInfo => imageInfo.Word)
+                                     .Include(userInfo => userInfo.Guesses).ThenInclude(guess => guess.Image)
+                                     .ToListAsync();
         var listForDetail = mapper.Map<List<UserInfo>, List<UserInfoDetail>>(userInfos);
         foreach (var userInfo in listForDetail)
         {

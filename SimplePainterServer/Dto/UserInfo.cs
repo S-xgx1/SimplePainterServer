@@ -1,13 +1,8 @@
 ﻿namespace SimplePainterServer.Dto;
 
-public class UserInfoDto(
-    int    id,
-    string name,
-    string language,
-    string sex,
-    string age,
-    string career,
-    string educationLevel)
+public class UserInfoDto(int    id, string name, string language, string sex, string age, string career,
+                         string educationLevel
+)
 {
     public int    ID             { get; set; } = id;
     public string Name           { get; set; } = name;
