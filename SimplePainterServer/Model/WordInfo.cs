@@ -17,4 +17,5 @@ public class WordInfo
     public string                 Name       { get; set; }
     public string                 PartSpeech { get; set; }
     public ICollection<ImageInfo> Images     { get; set; }
+    public ICollection<WordCreateTime> WordCreateTime { get; set; }
 }

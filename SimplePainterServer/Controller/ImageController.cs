@@ -16,6 +16,14 @@ public class ImageController(MainDateBase context, IMapper mapper, IWebHostEnvir
     {
         var entityEntry = await context.AddAsync(mapper.Map<ImageInfo>(info));
         await context.SaveChangesAsync();
+        var count = await context.ImageInfos.CountAsync(x => x.WordId == info.WordId);
+        // 这个数量为整数则记录时间
+        const int recordNumber = 5;
+        if (count % recordNumber != 0) return mapper.Map<ImageInfo, ImageInfoDto>(entityEntry.Entity);
+
+        await context.WordCreateTimes.AddAsync(new(info.WordId, DateTime.Now, CreateTimeType.Image));
+        await context.SaveChangesAsync();
+
         return mapper.Map<ImageInfo, ImageInfoDto>(entityEntry.Entity);
     }
 
@@ -81,12 +89,16 @@ public class ImageController(MainDateBase context, IMapper mapper, IWebHostEnvir
     {
         var imageInfo = await context.ImageInfos.Include(x => x.Word).SingleOrDefaultAsync(x => x.ID == id);
         if (imageInfo == null) return NotFound();
-        var       totalCount     = await context.WordInfos.CountAsync();
-        const int randomCount    = 5;
-        var       randomIndex    = new Random().Next(0, Math.Max(1, totalCount - randomCount + 1));
-        var       randomProducts = await context.WordInfos.Skip(randomIndex).Take(randomCount).ToListAsync();
-        randomProducts.Add(imageInfo.Word);
-        return randomProducts.Select(x => x.Name).ToList();
+        // 获取当前imageInfo在数据库前面的两个单词和后面的两个单词
+        var words    = await context.WordInfos.OrderBy(x => x.ID).ToListAsync();
+        var index    = words.FindIndex(x => x.ID == imageInfo.WordId);
+        var tipWords = new List<string>();
+        if (index > 0) tipWords.Add(words[index               - 1].Name);
+        if (index > 1) tipWords.Add(words[index               - 2].Name);
+        if (index < words.Count - 1) tipWords.Add(words[index + 1].Name);
+        if (index < words.Count - 2) tipWords.Add(words[index + 2].Name);
+        tipWords.Add(imageInfo.Word.Name);
+        return tipWords.OrderBy(x => new Random().Next()).ToList();
     }
 
     [HttpGet("File")]

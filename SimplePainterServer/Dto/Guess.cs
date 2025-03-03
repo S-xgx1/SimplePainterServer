@@ -6,4 +6,5 @@ public class GuessDto(int id, int imageId, string word, int userId)
     public int    ImageId { get; set; } = imageId;
     public string Word    { get; set; } = word;
     public int    UserID  { get; set; } = userId;
+    public bool   IsCorrect { get; set; }
 }

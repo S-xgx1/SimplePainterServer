@@ -35,4 +35,5 @@ public class UserInfo
     public string                 EducationLevel { get; set; }
     public ICollection<Guess>     Guesses        { get; set; }
     public ICollection<ImageInfo> Images         { get; set; }
+    public ICollection<WordInfo>  Words          { get; set; }
 }

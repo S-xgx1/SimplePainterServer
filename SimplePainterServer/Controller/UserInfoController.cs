@@ -72,6 +72,7 @@ public class UserInfoController(MainDateBase context, IMapper mapper) : Controll
             userInfo.DrawCount         = first.Images.Count;
             userInfo.GuessCount        = first.Guesses.Count;
             userInfo.GuessSuccessCount = first.Guesses.Sum(x => x.Image.Word.Name == x.Word ? 1 : 0);
+            userInfo.Progress          = await InGetPersonalProgress(first.ID);
         }
 
         return listForDetail;
@@ -86,5 +87,17 @@ public class UserInfoController(MainDateBase context, IMapper mapper) : Controll
         context.UserInfos.Remove(info);
         await context.SaveChangesAsync();
         return Ok();
+    }
+
+
+    [HttpGet("PersonalProgress")]
+    public async Task<ActionResult<double>> GetPersonalProgress(int id) => await InGetPersonalProgress(id);
+
+    async Task<double> InGetPersonalProgress(int id)
+    {
+        var wordCount  = await context.ImageInfos.CountAsync(x => x.UserID == id);
+        var guessCount = await context.Guesses.CountAsync(x => x.UserID    == id);
+        return Math.Min(wordCount  * Config.CreateWordAddPersonalProgress, 0.5) +
+               Math.Min(guessCount * Config.GuessWordAddPersonalProgress,  0.5);
     }
 }

@@ -20,7 +20,10 @@ public class AutoProfile : Profile
            .ConstructUsing(x => new(x.ID, x.Name, x.Language, x.Sex, x.Age, x.Career, x.EducationLevel));
         CreateMap<WordInfo, WordInfoDto>().ConstructUsing(x => new(x.ID, x.Name, x.PartSpeech)).ReverseMap()
                                           .ConstructUsing(x => new(x.ID, x.Name, x.PartSpeech));
-        CreateMap<WordInfo, WordInfoDetail>().ConstructUsing(x => new(x.ID, x.Name, x.PartSpeech, 0));
+        CreateMap<WordInfo, WordInfoDetail>().ConstructUsing(x => new(x.ID, x.Name, x.PartSpeech));
         CreateMap<ImageInfo, ImageInfoDetail>().ConstructUsing(x => new(x.ID, x.WordId, x.UserID, 0, 0));
+        CreateMap<WordCreateTime, WordCreateTimeDto>().ConstructUsing(x => new(x.WordInfoId, x.DateTime, x.Type))
+                                                      .ReverseMap()
+                                                      .ConstructUsing(x => new(x.WordInfoId, x.DateTime, x.Type));
     }
 }

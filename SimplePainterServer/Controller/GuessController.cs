@@ -14,7 +14,21 @@ public class GuessController(MainDateBase context, IMapper mapper) : ControllerB
     {
         var entityEntry = await context.AddAsync(mapper.Map<Guess>(info));
         await context.SaveChangesAsync();
-        return mapper.Map<Guess, GuessDto>(entityEntry.Entity);
+        var wordId = await context.ImageInfos.Where(x => x.ID == info.ImageId).Select(x => x.WordId)
+                                  .FirstOrDefaultAsync();
+        var       count = await context.Guesses.Include(x => x.Image).CountAsync(x => x.Image.WordId == wordId);
+        // 这个数量为整数则记录时间
+        const int recordNumber = 5;
+        if (count % recordNumber == 0)
+        {
+            await context.WordCreateTimes.AddAsync(new(wordId, DateTime.Now, CreateTimeType.Guess));
+            await context.SaveChangesAsync();
+        }
+
+        var guessDto = mapper.Map<Guess, GuessDto>(entityEntry.Entity);
+        var wordInfo = await context.ImageInfos.Include(x => x.Word).FirstOrDefaultAsync(x => x.ID == guessDto.ImageId);
+        guessDto.IsCorrect = wordInfo is not null && info.Word == wordInfo.Word.Name;
+        return guessDto;
     }
 
     [HttpGet("ListForImage")]
